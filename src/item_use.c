@@ -430,6 +430,12 @@ void FieldUseFunc_RareCandy(u8 taskId)
     DoSetUpItemUseCallback(taskId);
 }
 
+void FieldUseFunc_RareCandyPill(u8 taskId)
+{
+    gItemUseCB = ItemUseCB_RareCandyPill;
+    DoSetUpItemUseCallback(taskId);
+}
+
 void FieldUseFunc_EvoItem(u8 taskId)
 {
     gItemUseCB = ItemUseCB_EvolutionStone;
@@ -857,6 +863,10 @@ void ItemUseOutOfBattle_EnigmaBerry(u8 taskId)
     case ITEM_EFFECT_RAISE_LEVEL:
         gTasks[taskId].data[4] = 1;
         FieldUseFunc_RareCandy(taskId);
+        break;
+    case ITEM_EFFECT_RAISE_LEVEL_PILL:
+        gTasks[taskId].data[4] = 1;
+        FieldUseFunc_RareCandyPill(taskId);
         break;
     case ITEM_EFFECT_PP_UP:
     case ITEM_EFFECT_PP_MAX:

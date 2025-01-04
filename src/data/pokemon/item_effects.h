@@ -400,5 +400,6 @@ const u8 *const gItemEffectTable[] =
     [ITEM_PERSIM_BERRY - ITEM_POTION]  = sItemEffect_PersimBerry,
     [ITEM_LUM_BERRY - ITEM_POTION]     = sItemEffect_LumBerry,
     [ITEM_SITRUS_BERRY - ITEM_POTION]  = sItemEffect_SitrusBerry,
+    [ITEM_CANDY_PILL - ITEM_POTION]    = sItemEffect_RareCandy,
     [LAST_BERRY_INDEX - ITEM_POTION]   = NULL,
 };

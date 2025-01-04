@@ -403,9 +403,9 @@ void PSA_PrintMessage(u8 messageId)
         level = GetMonData(pokemon, MON_DATA_LEVEL);
         GetMonData(pokemon, MON_DATA_NICKNAME, scene->textBuf);
         str = StringAppend(scene->textBuf, gText_LevelRoseTo);
-        if (level < MAX_LEVEL)
+        if (level < GetMaxLevelFromBadge())
             level++;
-        str = ConvertIntToDecimalStringN(str, level, STR_CONV_MODE_LEFT_ALIGN, level < MAX_LEVEL ? 2 : 3);
+        str = ConvertIntToDecimalStringN(str, level, STR_CONV_MODE_LEFT_ALIGN, level < GetMaxLevelFromBadge() ? 2 : 3);
         StringAppend(str, gText_Period2);
         break;
     case 9: // Mon learned move

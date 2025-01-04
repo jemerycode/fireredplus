@@ -246,6 +246,7 @@ struct BattleMove
     u8 target;
     s8 priority;
     u8 flags;
+    bool8 isPhysical;
 };
 
 #define SPINDA_SPOT_WIDTH 16
@@ -314,6 +315,7 @@ void ConvertPokemonToBattleTowerPokemon(struct Pokemon *mon, struct BattleTowerP
 void CalculateMonStats(struct Pokemon *mon);
 void BoxMonToMon(struct BoxPokemon *src, struct Pokemon *dest);
 u8 GetLevelFromBoxMonExp(struct BoxPokemon *boxMon);
+u8 GetMaxLevelFromBadge();
 u16 GiveMoveToMon(struct Pokemon *mon, u16 move);
 u16 GiveMoveToBattleMon(struct BattlePokemon *mon, u16 move);
 void SetMonMoveSlot(struct Pokemon *mon, u16 move, u8 slot);

@@ -2187,7 +2187,7 @@ static u8 GetLevelFromMonExp(struct Pokemon *mon)
     u32 exp = GetMonData(mon, MON_DATA_EXP, NULL);
     s32 level = 1;
 
-    while (level <= MAX_LEVEL && gExperienceTables[gSpeciesInfo[species].growthRate][level] <= exp)
+    while (level <= GetMaxLevelFromBadge() && gExperienceTables[gSpeciesInfo[species].growthRate][level] <= exp)
         level++;
 
     return level - 1;
@@ -2199,10 +2199,37 @@ u8 GetLevelFromBoxMonExp(struct BoxPokemon *boxMon)
     u32 exp = GetBoxMonData(boxMon, MON_DATA_EXP, NULL);
     s32 level = 1;
 
-    while (level <= MAX_LEVEL && gExperienceTables[gSpeciesInfo[species].growthRate][level] <= exp)
+    while (level <= GetMaxLevelFromBadge() && gExperienceTables[gSpeciesInfo[species].growthRate][level] <= exp)
         level++;
 
     return level - 1;
+}
+
+u8 GetMaxLevelFromBadge()
+{
+    if (FlagGet(FLAG_BADGE08_GET))
+        return 58;
+    else if(FlagGet(FLAG_BADGE07_GET)){
+        return 50;
+    }
+    else if(FlagGet(FLAG_BADGE06_GET) && FlagGet(FLAG_BADGE05_GET)){
+        return 47;
+    }
+    else if(FlagGet(FLAG_BADGE04_GET)){
+        return 43;
+    }
+    else if(FlagGet(FLAG_BADGE03_GET)){
+        return 29;
+    }
+    else if(FlagGet(FLAG_BADGE02_GET)){
+        return 24;
+    }
+    else if(FlagGet(FLAG_BADGE01_GET)){
+        return 21;
+    }
+    else{
+        return 14;
+    }
 }
 
 u16 GiveMoveToMon(struct Pokemon *mon, u16 move)
@@ -2388,6 +2415,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
     s32 damage = 0;
     s32 damageHelper;
     u8 type;
+    bool8 isPhysical;
     u16 attack, defense;
     u16 spAttack, spDefense;
     u8 defenderHoldEffect;
@@ -2400,10 +2428,14 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
     else
         gBattleMovePower = powerOverride;
 
-    if (!typeOverride)
+    if (!typeOverride){
         type = gBattleMoves[move].type;
-    else
+        isPhysical = gBattleMoves[move].isPhysical;
+    }
+    else{
         type = typeOverride & DYNAMIC_TYPE_MASK;
+        isPhysical = false;
+    }
 
     attack = attacker->attack;
     defense = defender->defense;
@@ -2452,7 +2484,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
         if (attackerHoldEffect == sHoldEffectToType[i][0]
             && type == sHoldEffectToType[i][1])
         {
-            if (IS_TYPE_PHYSICAL(type))
+            if (isPhysical)
                 attack = (attack * (attackerHoldEffectParam + 100)) / 100;
             else
                 spAttack = (spAttack * (attackerHoldEffectParam + 100)) / 100;
@@ -2506,7 +2538,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
     if (gBattleMoves[gCurrentMove].effect == EFFECT_EXPLOSION)
         defense /= 2;
 
-    if (IS_TYPE_PHYSICAL(type))
+    if (isPhysical)
     {
         if (gCritMultiplier == 2)
         {
@@ -2561,7 +2593,7 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
     if (type == TYPE_MYSTERY)
         damage = 0; // is ??? type. does 0 damage.
 
-    if (IS_TYPE_SPECIAL(type))
+    if (!isPhysical)
     {
         if (gCritMultiplier == 2)
         {
@@ -4150,7 +4182,7 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
 
             // Rare Candy
             if ((itemEffect[cmdIndex] & ITEM3_LEVEL_UP)
-             && GetMonData(mon, MON_DATA_LEVEL, NULL) != MAX_LEVEL)
+             && GetMonData(mon, MON_DATA_LEVEL, NULL) != GetMaxLevelFromBadge())
             {
                 data = gExperienceTables[gSpeciesInfo[GetMonData(mon, MON_DATA_SPECIES, NULL)].growthRate][GetMonData(mon, MON_DATA_LEVEL, NULL) + 1];
                 SetMonData(mon, MON_DATA_EXP, &data);
@@ -4640,7 +4672,7 @@ bool8 PokemonItemUseNoEffect(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mo
 
             // Rare Candy
             if ((itemEffect[cmdIndex] & ITEM3_LEVEL_UP)
-             && GetMonData(mon, MON_DATA_LEVEL, NULL) != MAX_LEVEL)
+             && GetMonData(mon, MON_DATA_LEVEL, NULL) != GetMaxLevelFromBadge())
                 retVal = FALSE;
 
             // Cure status
@@ -5675,9 +5707,9 @@ void PartySpreadPokerus(struct Pokemon *party)
 
 static void SetMonExpWithMaxLevelCheck(struct Pokemon *mon, int species, u8 unused, u32 data)
 {
-    if (data > gExperienceTables[gSpeciesInfo[species].growthRate][MAX_LEVEL])
+    if (data > gExperienceTables[gSpeciesInfo[species].growthRate][GetMaxLevelFromBadge()])
     {
-        data = gExperienceTables[gSpeciesInfo[species].growthRate][MAX_LEVEL];
+        data = gExperienceTables[gSpeciesInfo[species].growthRate][GetMaxLevelFromBadge()];
         SetMonData(mon, MON_DATA_EXP, &data);
     }
 }
@@ -5689,7 +5721,7 @@ bool8 TryIncrementMonLevel(struct Pokemon *mon)
     u8 newLevel = level + 1;
     u32 exp = GetMonData(mon, MON_DATA_EXP, NULL);
 
-    if (level < MAX_LEVEL)
+    if (level < GetMaxLevelFromBadge())
     {
         if (exp > gExperienceTables[gSpeciesInfo[species].growthRate][newLevel])
         {
